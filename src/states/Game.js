@@ -1,12 +1,20 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
 import Arrow from '../sprites/Arrow'
+import Box from '../sprites/Box'
 
 import Constants from '../constants.js'
+
+
 
 export default class extends Phaser.State {
   init() { }
     preload() {
+		
+		game.load.image('box', 'assets/images/box.jpg');
+
+		
+		
         // Draw circle
         var graphics = game.add.graphics(game.world.centerX, game.world.centerY);
         game.stage.backgroundColor = "#CBCEC6";
@@ -49,8 +57,38 @@ export default class extends Phaser.State {
                                 Constants.ARROW_RED_COLOR, 
                                 Constants.ARROW_ROTATE_SPEED);
       this.game.add.existing(this.arrowRed);
+	  
+	  for(var i =0; i<5; i++){
+		game.time.events.add(Phaser.Timer.SECOND *5*i, function(){
+			this.box = new Box (this.game, Math.random()*this.world.width, Math.random()*this.world.height, 'box');
+	  		this.game.add.existing(this.box);
+		}, this);
+	  }
+
+		 
   }
+	
+	update(){
+		var speed = 4;
+		if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+			this.arrowBlue.x -=4;
+    	}
+    	if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+        	this.arrowBlue.x +=4;
+		}
+    	if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+        	this.arrowBlue.y -=4;
+		}
+		if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+        	this.arrowBlue.y +=4;
+		}
+		
+		
+	}
+	
+
 
   render() {
   }
 }
+
