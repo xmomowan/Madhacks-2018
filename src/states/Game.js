@@ -2,186 +2,153 @@
 import Phaser from 'phaser'
 import Arrow from '../sprites/Arrow'
 import Box from '../sprites/Box'
+import CapturePoint from '../sprites/CapturePoint.js'
 
 import Constants from '../constants.js'
 
-
 export default class extends Phaser.State {
-  init() { }
+    init() { }
     preload() {
-		
-		game.load.image('box', 'assets/images/box.jpg');
 
-		
-		
-        // Draw circle
-        var graphics = game.add.graphics(game.world.centerX, game.world.centerY);
-        game.stage.backgroundColor = "#CBCEC6";
-
-        //  Our first arc will be a line only
-        graphics.lineStyle(1, 0x353EC4);
-        graphics.beginFill(0x353EC4);
-
-        // graphics.arc(0, 0, 135, game.math.degToRad(0), game.math.degToRad(90), false);
-        graphics.arc(0, 0, 180, Math.PI/2, 3/2*Math.PI, false);
-
-        //  As we wish to draw a 2nd arc on the SAME Graphics object, we need to move the drawing operation
-        // graphics.moveTo(-100, -100);
-
-        //  This will reset the lineStyle
-        graphics.lineStyle(1,0xFF3300);
-
-        //  And this draws a filled arc
-        graphics.beginFill(0xFF3300);
-
-        //  Note the 'true' at the end, this tells it to draw anticlockwise
-        graphics.arc(0, 0, 180, 3/2*Math.PI, Math.PI/2, false);
-        graphics.endFill();
+        game.load.image('box', 'assets/images/box.jpg');
     }
 
   create() {
-      
+
+
+      let centerX = this.world.centerX;
+      let centerY = this.world.centerY;
+      this.capturePoint = new CapturePoint(this.game, centerX, centerY, 130);
+      this.game.add.existing(this.capturePoint);
+
       this.arrowBlue = new Arrow(this.game, 
                                  Constants.ARROW_STARTING_POSITION_X,
-                                 this.world.centerY,
+                                 centerY,
                                  3, 
                                  Constants.ARROW_BLUE_COLOR, 
                                  Constants.ARROW_ROTATE_SPEED);
-	  
+      
       this.game.add.existing(this.arrowBlue);
 
       this.arrowRed = new Arrow(this.game, 
                                 this.world.width - Constants.ARROW_STARTING_POSITION_X,
-                                this.world.centerY,
+                                centerY,
                                 3, 
                                 Constants.ARROW_RED_COLOR, 
                                 Constants.ARROW_ROTATE_SPEED);
-	  
+      
       this.game.add.existing(this.arrowRed);
 
-	  
-	  
-	  
+        game.physics.startSystem(Phaser.Physics.P2JS);
+        game.physics.p2.setImpactEvents(true);
+        game.physics.p2.restitution = 0.8;
+        game.physics.p2.enable(this.arrowRed, false);
+        game.physics.p2.enable(this.arrowBlue, false);
 
-	  this.boxGroup = game.add.group(); 
-//	  game.physics.p2.enable(this.boxGroup,false);
-	  
-	  
-	  for(var i =0; i<2; i++){	  	
-		  this.boxGroup.create(Math.random()*this.world.width, Math.random()*this.world.height, 'box');
-	  }
-
-//	  	  		this.game.add.existing(this.box);
-
-	  
-	game.physics.startSystem(Phaser.Physics.P2JS);
-//
-//    //  Turn on impact events for the world, without this we get no collision callbacks
-    game.physics.p2.setImpactEvents(true);
-//
-    game.physics.p2.restitution = 0.8;
-//	  
-	game.physics.p2.enable(this.arrowRed, false);
-	game.physics.p2.enable(this.arrowBlue, false);
-//	  
-//	this.arrowRed.body.createBodyCallback(this.arrowBlue, function(){
-//		arrowRed.x -= 500;
-//	}, this);
-//	  
-//	this.arrowBlue.body.createBodyCallback(this.arrowRed, function(){
-//		arrowBlue.x += 500;
-//	}, this);
-
-	  
-	  
-
-
-
-
-
-		 
+    this.game.physics.arcade.enable([this.arrowBlue, this.arrowRed, this.capturePoint], false);
+    this.capturePoint.recalculateBody();
   }
-	
-	update(){
-//		var speed = 4;
-//		if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-//			this.arrowRed.x -=speed;
-//    	}
-//    	if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-//        	this.arrowRed.x +=speed;
-//		}
-//    	if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
-//        	this.arrowRed.y -=speed;
-//		}
-//		if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
-//        	this.arrowRed.y +=speed;
-//		}
-//		
-//		if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
-//			this.arrowBlue.x -=speed;
-//    	}
-//    	if (game.input.keyboard.isDown(Phaser.Keyboard.D)){
-//        	this.arrowBlue.x +=speed;
-//		}
-//    	if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
-//        	this.arrowBlue.y -=speed;
-//		}
-//		if (game.input.keyboard.isDown(Phaser.Keyboard.S)){
-//        	this.arrowBlue.y +=speed;
-//		}
-
-		
-	if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {this.arrowBlue.body.rotateLeft(100);}   //ship movement
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){this.arrowBlue.body.rotateRight(100);}
-    else {this.arrowBlue.body.setZeroRotation();}
-    if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){this.arrowBlue.body.thrust(400);}
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){this.arrowBlue.body.reverse(400);}
-		
-	if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {this.arrowRed.body.rotateLeft(100);}   //ship movement
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.D)){this.arrowRed.body.rotateRight(100);}
-    else {this.arrowRed.body.setZeroRotation();}
-    if (game.input.keyboard.isDown(Phaser.Keyboard.W)){this.arrowRed.body.thrust(400);}
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.S)){this.arrowRed.body.reverse(400);}
-		
-		
-		
-	if(this.boxGroup.counterLiving<=5){
-		  this.boxGroup.create(Math.random()*this.world.width, Math.random()*this.world.height, 'box');
-	   }
-		
-//		let innerthis = this;
-//		this.boxGroup.forEach((boxi) => {
-//			if(this.game.physics.arcade.overlap(this.arrowRed,boxi)||this.game.physics.arcade.overlap(this.arrowBlue,boxi)){boxi.destroy;}
-//		})
-		
-		
-		
-	}
+    
+    update(){
 
 
-//		this.boxGroup.forEach(overlap,this.arrowRed,true	
-//			
-//		})
-		
-//	if(this.arrowRed.overlap(this.box)){
-//	   this.box.destroy();
-//	   }
-		
-		
-//		if(Math.abs(this.arrowBlue.x-this.box.x)<=this.box.length/2&&Math.abs(this.arrowBlue.y-this.box.y)<=this.box.length/2){
-//			console.log("true")
-//		}
-		
-//		this.game.physics.arcade.collide(this.arrowBlue, this.arrowRed, function(){
-//			this.arrowRed.x -=30;
-//			this.arrowBlue.x +=30;
-//
-//		}, null, this);
+        if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+            this.arrowBlue.body.rotateLeft(100);
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)){
+            this.arrowBlue.body.rotateRight(100);
+        } else {
+            this.arrowBlue.body.setZeroRotation();
+        }
 
-		
-	
-	
-	
+        if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
+            this.arrowBlue.body.thrust(400);
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.S)){
+            this.arrowBlue.body.reverse(400);
+        }
+            
+        if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+            this.arrowRed.body.rotateLeft(100);
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+            this.arrowRed.body.rotateRight(100);
+        }else {
+            this.arrowRed.body.setZeroRotation();
+        }
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+            this.arrowRed.body.thrust(400);
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+            this.arrowRed.body.reverse(400);
+        }
+
+        let captureFrame = this.capturePoint.body.frame;
+
+
+        let blueCapturing = this.checkOverlay(this.arrowBlue);
+        let redCapturing = this.checkOverlay(this.arrowRed);
+
+        if(blueCapturing && redCapturing) {
+
+            // do nothing
+        } else if (blueCapturing) {
+
+            this.capturePoint.blueCapturing();
+        } else if (redCapturing) {
+
+            this.capturePoint.redCapturing();
+        }
+
+        if(this.capturePoint.blueWon()) {
+            this.game.state.start('GameOver');
+        }
+
+        if(this.capturePoint.redWon()) {
+            this.game.state.start('GameOver');
+        }
+    }
+
+    checkOverlay(sprite){
+
+        let x = sprite.x;
+        let y = sprite.y;
+
+        let body = this.capturePoint.body;
+        if(sprite.x > body.x && sprite.x < body.x + body.width &&
+           sprite.y > body.y && sprite.y < body.y + body.height) {
+
+            return true;
+        }
+
+        return false;
+    }
+
+    moveArrows() {
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+            this.arrowRed.x -= Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+            this.arrowRed.x += Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+            this.arrowRed.y -= Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+            this.arrowRed.y += Constants.ARROW_MOVE_SPEED;
+        }
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.A)){
+            this.arrowBlue.x -= Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.D)){
+            this.arrowBlue.x += Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.W)){
+            this.arrowBlue.y -= Constants.ARROW_MOVE_SPEED;
+        }
+        if (game.input.keyboard.isDown(Phaser.Keyboard.S)){
+            this.arrowBlue.y += Constants.ARROW_MOVE_SPEED;
+        }
+    }
 
   render() {
   }

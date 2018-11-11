@@ -1,16 +1,15 @@
 import Phaser from 'phaser'
-import WebFont from 'webfontloader'
-import config from '../config';
+import Constants from '../constants.js'
 
 export default class extends Phaser.State {
   init() {
-    this.stage.backgroundColor = '#FFFFFF'
+    game.stage.backgroundColor = Constants.BACKGROUND_COLOR;
   }
 
   preload() {
   }
 
   render() {
-      this.state.start('Game')
+      this.state.start('Game');
   }
 }
