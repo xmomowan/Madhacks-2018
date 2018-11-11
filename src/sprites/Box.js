@@ -5,12 +5,13 @@ export default class extends Phaser.Sprite {
     super(game, x, y, asset)
     this.anchor.setTo(0.5)
 	this.counter = 0;
+	this.length = 43;
 
   }
 	
  update () {
     this.counter += 1;
-	if(this.counter>=100){
+	if(this.counter>=1000){
 	   	this.destroy();
 	   }
   }
